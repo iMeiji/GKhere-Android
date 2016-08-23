@@ -13,7 +13,7 @@
             android:id="@+id/sp_year"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1.6"
+            android:layout_weight="1.2"
             android:gravity="center"
             android:spinnerMode="dropdown" />
 
@@ -21,7 +21,7 @@
             android:id="@+id/sp_Semester"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_weight="0.7"
             android:gravity="center"
             android:spinnerMode="dropdown" />
 
@@ -29,7 +29,7 @@
             android:id="@+id/sp_mode"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1.5"
+            android:layout_weight="1.2"
             android:gravity="center"
             android:spinnerMode="dropdown" />
 
@@ -44,15 +44,25 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:scrollbarSize="40dp"
+            android:visibility="invisible"
             android:layout_centerHorizontal="true" />
 
         <ListView
             android:id="@+id/list_score"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:paddingLeft="10dp"
             android:paddingRight="10dp">
-
         </ListView>
     </RelativeLayout>
+
+    <!--<ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/tv_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+    </ScrollView>-->
 </LinearLayout>

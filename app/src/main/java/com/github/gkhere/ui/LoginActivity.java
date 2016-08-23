@@ -42,7 +42,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private String TAG = "LoginActivity : ";
     private Context mContext;
-    private String responseResource;
+    private String mResponse;
     private SharedPreferences sp;
     private String stuId;
     private String stuPasswd;
@@ -186,7 +186,7 @@ public class LoginActivity extends AppCompatActivity {
                             sp.edit().putString("stuId", stuId).commit();
                             sp.edit().putString("stuPasswd", stuPasswd).commit();
 
-                            responseResource = response;
+                            mResponse = response;
                             initUrlData();
                             startActivity(new Intent(mContext, MainActivity.class));
                         }
@@ -198,17 +198,17 @@ public class LoginActivity extends AppCompatActivity {
      * 初始化查询的Url
      */
     private void initUrlData() {
-        HtmlUtils utils = new HtmlUtils(responseResource);
-        utils.encoder(responseResource);
+        HtmlUtils utils = new HtmlUtils(mResponse);
+        utils.encoder(mResponse);
         String stuXh = HtmlUtils.getStuXh();
         String stuName = HtmlUtils.getStuName();
-        HtmlUtils.searchgradeUrl = HtmlUtils.searchgradeUrl.replace("stuXh",
+        HtmlUtils.searchscoreUrl = HtmlUtils.searchscoreUrl.replace("stuXh",
                 stuXh).replace
                 ("stuName", TextEncoderUtils.encoding(stuName));
         HtmlUtils.searchcourseUrl = HtmlUtils.searchcourseUrl.replace("stuXh",
                 stuXh).replace
                 ("stuName", TextEncoderUtils.encoding(stuName));
-        System.out.println(TAG + "searchgradeUrl " + HtmlUtils.searchgradeUrl);
+        System.out.println(TAG + "searchscoreUrl " + HtmlUtils.searchscoreUrl);
         System.out.println(TAG + "searchcourseUrl " + HtmlUtils.searchcourseUrl);
     }
 }

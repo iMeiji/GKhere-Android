@@ -25,63 +25,67 @@ public class ParseScoreUtils {
     public List<ScoreBean> parseScore() {
         List<ScoreBean> scoreList = new ArrayList<>();
         Document document = Jsoup.parse(response);
-        Element dataGrid1 = document.getElementById("DataGrid1");
-        Elements trs = dataGrid1.select("tbody").select("tr");
-        for (int i = 0; i < trs.size(); i++) {
-            ScoreBean bean = new ScoreBean();
-            Elements tds = trs.get(i).select("td");
-            for (int j = 0; j < tds.size(); j++) {
-                switch (j) {
-                    case 0:
-                        bean.setScoreYear(tds.get(j).text());
-                        break;
-                    case 1:
-                        bean.setScoreSemester(tds.get(j).text());
-                        break;
-                    case 2:
-                        bean.setScoreId(tds.get(j).text());
-                        break;
-                    case 3:
-                        bean.setScoreName(tds.get(j).text());
-                        break;
-                    case 4:
-                        bean.setScoreKind(tds.get(j).text());
-                        break;
-                    case 5:
-                        bean.setScoreHome(tds.get(j).text());
-                        break;
-                    case 6:
-                        bean.setScoreCredit(tds.get(j).text());
-                        break;
-                    case 7:
-                        bean.setScorePoint(tds.get(j).text());
-                        break;
-                    case 8:
-                        bean.setScore(tds.get(j).text());
-                        break;
-                    case 9:
-                        bean.setScoreMark(tds.get(j).text());
-                        break;
-                    case 10:
-                        bean.setScoreresults(tds.get(j).text());
-                        break;
-                    case 11:
-                        bean.setScoreRebuiltResults(tds.get(j).text());
-                        break;
-                    case 12:
-                        bean.setScoreCollege(tds.get(j).text());
-                        break;
-                    case 13:
-                        bean.setScoreRemark(tds.get(j).text());
-                        break;
-                    case 14:
-                        bean.setScoreRebuiltMark(tds.get(j).text());
-                        break;
+        Element dataGrid1 = document.getElementById("Datagrid1");
+        try {
+            Elements trs = dataGrid1.select("tr");
+            //trs.get(0).select("td").remove();
+            for (int i = 1; i < trs.size(); i++) {
+                ScoreBean bean = new ScoreBean();
+                Elements tds = trs.get(i).select("td");
+                for (int j = 0; j < tds.size(); j++) {
+                    switch (j) {
+                        case 0:
+                            bean.setScoreYear(tds.get(j).text());
+                            break;
+                        case 1:
+                            bean.setScoreSemester(tds.get(j).text());
+                            break;
+                        case 2:
+                            bean.setScoreId(tds.get(j).text());
+                            break;
+                        case 3:
+                            bean.setScoreName(tds.get(j).text());
+                            break;
+                        case 4:
+                            bean.setScoreKind(tds.get(j).text());
+                            break;
+                        case 5:
+                            bean.setScoreHome(tds.get(j).text());
+                            break;
+                        case 6:
+                            bean.setScoreCredit(tds.get(j).text());
+                            break;
+                        case 7:
+                            bean.setScorePoint(tds.get(j).text());
+                            break;
+                        case 8:
+                            bean.setScore(tds.get(j).text());
+                            break;
+                        case 9:
+                            bean.setScoreMark(tds.get(j).text());
+                            break;
+                        case 10:
+                            bean.setScoreresults(tds.get(j).text());
+                            break;
+                        case 11:
+                            bean.setScoreRebuiltResults(tds.get(j).text());
+                            break;
+                        case 12:
+                            bean.setScoreCollege(tds.get(j).text());
+                            break;
+                        case 13:
+                            bean.setScoreRemark(tds.get(j).text());
+                            break;
+                        case 14:
+                            bean.setScoreRebuiltMark(tds.get(j).text());
+                            break;
+                    }
                 }
+                scoreList.add(bean);
             }
-            scoreList.add(bean);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-
         for (ScoreBean bean:scoreList) {
             System.out.println(bean.toString());
         }
@@ -93,7 +97,7 @@ public class ParseScoreUtils {
      *
      * @return
      */
-    public List<String> parseSelectYearList() {
+    public static List<String> parseSelectYearList(String response) {
         Document document = Jsoup.parse(response);
         Element select = document.getElementById("ddlXN");
         Elements options = select.select("option");

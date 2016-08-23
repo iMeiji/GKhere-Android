@@ -21,7 +21,7 @@ public class HtmlUtils {
     public static String codeUrl = "http://61.142.33.204/CheckCode.aspx";
     public static String loginUrl = "http://61.142.33.204/default2.aspx";
     public static String searchcourseUrl = "http://61.142.33.204/xskbcx.aspx?xh=stuXh&xm=stuName&gnmkdm=N121603";
-    public static String searchgradeUrl = "http://61.142.33.204/xscj_gc.aspx?xh=stuXh&xm=stuName&gnmkdm=N121605";
+    public static String searchscoreUrl = "http://61.142.33.204/xscj_gc.aspx?xh=stuXh&xm=stuName&gnmkdm=N121605";
 
     public static String response;
     public static String stuName = "";
