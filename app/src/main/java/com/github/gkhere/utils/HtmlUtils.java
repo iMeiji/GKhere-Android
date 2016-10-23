@@ -1,12 +1,12 @@
 package com.github.gkhere.utils;
 
+import com.github.gkhere.bean.BaseInfoBean;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,117 +20,87 @@ public class HtmlUtils {
     public static String hostUrl = "61.142.33.204";
     public static String codeUrl = "http://61.142.33.204/CheckCode.aspx";
     public static String loginUrl = "http://61.142.33.204/default2.aspx";
-    public static String searchcourseUrl = "http://61.142.33.204/xskbcx.aspx?xh=stuXh&xm=stuName&gnmkdm=N121603";
-    public static String searchscoreUrl = "http://61.142.33.204/xscj_gc.aspx?xh=stuXh&xm=stuName&gnmkdm=N121605";
+
+    public static String searchCourseUrl = "http://61.142.33.204/xskbcx.aspx?xh=stuId&xm=stuName&gnmkdm=N121603";//个人课表查询
+    public static String searchScoreUrl = "http://61.142.33.204/xscj_gc.aspx?xh=stuId&xm=stuName&gnmkdm=N121605";//学习成绩查询
 
     public static String response;
-    public static String stuName = "";
-    public static String stuXh = "";
     public static String userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) " +
             "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 " +
             "Safari/537.36";
 
+    public static BaseInfoBean encoder(BaseInfoBean baseInfoBean) {
 
-    public HtmlUtils(String response) {
-        this.response = response;
-    }
-
-    public String encoder(String response) {
-        //http://61.142.33.204/xscj_gc.aspx?xh=2014133217&xm=李铭智&gnmkdm=N121605
-
-        Document document = Jsoup.parse(response);
-        Elements links = document.select("a[href]");
-        StringBuffer buffer = new StringBuffer();
-        for (Element link : links) {
-            if (link.text().equals("学习成绩查询")) {
-                buffer.append(link.attr("href"));
-            }
-        }
-        //System.out.println("----------HtmlUtils buffer----------" + buffer.toString());
-        String url = buffer.toString();
-        // xscj_gc.aspx?xh=2014133217&xm=李铭智&gnmkdm=N121605
-
-        // 获取学号
-        int indexXh = url.indexOf("xh");
-        int indexXhStart  = url.indexOf("=", indexXh);
-        int indexXhEnd = url.indexOf("&",indexXhStart);
-        stuXh = url.substring(indexXhStart + 1, indexXhEnd);
-
-        // 获取姓名
-        int indexXm = url.indexOf("xm");
-        int indexXmStrart = url.indexOf("=", indexXm);
-        int indexXmEnd = url.lastIndexOf("&");
-        stuName = url.substring(indexXmStrart + 1, indexXmEnd);
-
-        // 转换编码
-        try {
-            String encodeName = URLEncoder.encode(stuName, "GBK");
-            url = url.replace(stuName, encodeName);
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        System.out.println("----------HtmlUtils url----------" + url);
-        return url;
-    }
-
-    public String getXhandName() {
-        Document document = Jsoup.parse(response);
-        Element xhxm = document.getElementById("xhxm");
-        String text = xhxm.text();
-        return text;
-    }
-
-    public static String getStuName() {
-        return stuName;
-    }
-
-    public static String getStuXh() {
-        return stuXh;
-    }
-
-    /*public List<ChengjiBean> parseCJTable() {
-        List<ChengjiBean> cjList = new ArrayList<>();
-        Document document = Jsoup.parse(response);
-        Element dataGrid1 = document.getElementById("DataGrid1");
-        Elements trs = dataGrid1.select("tbody").select("tr");
-        for (int i = 0; i < trs.size(); i++) {
-            ChengjiBean bean = new ChengjiBean();
-            Elements tds = trs.get(i).select("td");
-            for (int j = 0; j < tds.size(); j++) {
-                switch (j) {
-                    case 0:
-                        bean.setCourseId(tds.get(j).text());
-                        break;
-                    case 1:
-                        bean.setCourseName(tds.get(j).text());
-                        break;
-                    case 2:
-                        bean.setCourseXz(tds.get(j).text());
-                        break;
-                    case 3:
-                        bean.setCourseCj(tds.get(j).text());
-                        break;
-                    case 4:
-                        bean.setCourseGs(tds.get(j).text());
-                        break;
-                    case 5:
-                        bean.setCourseBk(tds.get(j).text());
-                        break;
-                    case 6:
-                        bean.setCourseCx(tds.get(j).text());
-                        break;
-                    case 7:
-                        bean.setCourseXf(tds.get(j).text());
-                        break;
-                    case 8:
-                        bean.setCourseBj(tds.get(j).text());
-                        break;
+        if (!"".equals(response)) {
+            Document document = Jsoup.parse(response);
+            Elements links = document.select("a[href]");
+            StringBuilder buffer = new StringBuilder();
+            for (Element link : links) {
+                if (link.text().equals("学习成绩查询")) {
+                    buffer.append(link.attr("href"));
                 }
             }
-            cjList.add(bean);
-            System.out.println(bean.toString());
+            String url = buffer.toString();
+            // xscj_gc.aspx?xh=2014133217&xm=哈哈哈&gnmkdm=N121605
+
+            // 获取学号
+            int indexXh = url.indexOf("xh");
+            int indexXhStart = url.indexOf("=", indexXh);
+            int indexXhEnd = url.indexOf("&", indexXhStart);
+            String stuId = url.substring(indexXhStart + 1, indexXhEnd);
+
+
+            // 获取姓名
+            int indexXm = url.indexOf("xm");
+            int indexXmStrart = url.indexOf("=", indexXm);
+            int indexXmEnd = url.lastIndexOf("&");
+            String stuName = url.substring(indexXmStrart + 1, indexXmEnd);
+
+            // 获取课表查询Url
+            String searchCourseUrl = baseInfoBean.getSearchCourseUrl();
+            searchCourseUrl = searchCourseUrl
+                    .replace("stuId", stuId)
+                    .replace("stuName", TextEncoderUtils.encoding(stuName));
+
+            // 获取成绩查询Url
+            String searchScoreUrl = baseInfoBean.getSearchScoreUrl();
+            searchScoreUrl = searchScoreUrl
+                    .replace("stuId", stuId)
+                    .replace("stuName", TextEncoderUtils.encoding(stuName));
+
+            // 保存数据到对象中
+            baseInfoBean.setStuId(stuId);
+            baseInfoBean.setStuName(stuName);
+            baseInfoBean.setSearchCourseUrl(searchCourseUrl);
+            baseInfoBean.setSearchScoreUrl(searchScoreUrl);
+
+           /* // 转换编码
+            try {
+                String encodeName = URLEncoder.encode(stuName, "GBK");
+                url = url.replace(stuName, encodeName);
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+            System.out.println("----------HtmlUtils url----------" + url);*/
         }
-        return cjList;
+        return baseInfoBean;
+    }
+
+
+    /*// 返回个人课表查询Url
+    public static String getsearchCourseUrl() {
+        searchCourseUrl = searchCourseUrl
+                .replace("stuId", stuId)
+                .replace("stuName", TextEncoderUtils.encoding(stuName));
+        return searchCourseUrl;
+    }
+
+    // 返回学习成绩查询Url
+    public static String getsearchScoreUrl() {
+        searchScoreUrl = searchScoreUrl
+                .replace("stuId", stuId)
+                .replace("stuName", TextEncoderUtils.encoding(stuName));
+        return searchScoreUrl;
     }*/
 
     /**

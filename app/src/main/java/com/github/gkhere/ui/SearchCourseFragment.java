@@ -15,8 +15,8 @@ import com.github.gkhere.R;
 import com.github.gkhere.adapter.CourseAdapter;
 import com.github.gkhere.adapter.CoursePagerAdapter;
 import com.github.gkhere.bean.CourseBean;
+import com.github.gkhere.dao.BaseInfoDao;
 import com.github.gkhere.dao.CourseDao;
-import com.github.gkhere.utils.HtmlUtils;
 import com.github.gkhere.utils.PareseCourseUtils;
 import com.github.gkhere.utils.TextEncoderUtils;
 import com.zhy.http.okhttp.OkHttpUtils;
@@ -26,6 +26,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import okhttp3.Call;
+
+import static com.github.gkhere.bean.BaseInfoBean.BASEINFO_hostUrl;
+import static com.github.gkhere.bean.BaseInfoBean.BASEINFO_searchCourseUrl;
+import static com.github.gkhere.bean.BaseInfoBean.BASEINFO_stuId;
+import static com.github.gkhere.bean.BaseInfoBean.BASEINFO_stuName;
+import static com.github.gkhere.bean.BaseInfoBean.BASEINFO_userAgent;
 
 /**
  * Created by Meiji on 2016/8/10.
@@ -39,6 +45,15 @@ public class SearchCourseFragment extends Fragment {
     private List<CourseBean> courseBeanList;
     private CourseAdapter adapter;
 
+
+    // 请求数据
+    private String searchCourseUrl;
+    private String xh;
+    private String xm;
+    private String Referer;
+    private String Host;
+    private String UserAgent;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,9 +66,19 @@ public class SearchCourseFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_searchcourse, container,
                 false);
         initView(view);
-
+        initData();
         searchCourse();
         return view;
+    }
+
+    private void initData() {
+        BaseInfoDao baseInfoDao = new BaseInfoDao(mContext);
+        searchCourseUrl = baseInfoDao.query(BASEINFO_searchCourseUrl);
+        xh = baseInfoDao.query(BASEINFO_stuId);
+        xm = baseInfoDao.query(BASEINFO_stuName);
+        Referer = baseInfoDao.query(BASEINFO_searchCourseUrl);
+        Host = baseInfoDao.query(BASEINFO_hostUrl);
+        UserAgent = baseInfoDao.query(BASEINFO_userAgent);
     }
 
     private void initView(View view) {
@@ -68,20 +93,21 @@ public class SearchCourseFragment extends Fragment {
     }
 
     private void searchCourse() {
-        System.out.println(HtmlUtils.searchcourseUrl);
-        OkHttpUtils.post().url(HtmlUtils.searchcourseUrl)
-                .addParams("xh", HtmlUtils.getStuXh())
-                .addParams("xm", TextEncoderUtils.encoding(HtmlUtils.getStuName()))
+        System.out.println(searchCourseUrl);
+        OkHttpUtils.post()
+                .url(searchCourseUrl)
+                .addParams("xh", xh)
+                .addParams("xm", TextEncoderUtils.encoding(xm))
                 .addParams("gnmkdm", "N121603")
+                // 查询本学期课表有bug 待解决
                 .addParams("__EVENTTARGET", "xnd")
                 .addParams("__EVENTARGUMENT", "")
-                .addParams("__VIEWSTATE", getString(R.string
-                        .search_course_viewstate))
+                .addParams("__VIEWSTATE", getString(R.string.search_course_viewstate))
                 .addParams("xnd", "2015-2016")
                 .addParams("xqd", "1")
-                .addHeader("Referer", HtmlUtils.searchcourseUrl)
-                .addHeader("Host", HtmlUtils.hostUrl)
-                .addHeader("User-Agent", HtmlUtils.userAgent)
+                .addHeader("Referer", Referer)
+                .addHeader("Host", Host)
+                .addHeader("User-Agent", UserAgent)
                 .build()
                 .connTimeOut(5000)
                 .execute(new StringCallback() {
@@ -110,7 +136,7 @@ public class SearchCourseFragment extends Fragment {
             String location = bean.getCourseLocation();
             String info = bean.getCourseInfo();
             boolean isSuccess = courseDao.add(name, time, timeDetail, teacher,
-                    location,info);
+                    location, info);
             if (!isSuccess) {
                 saveSuccess = false;
                 Toast.makeText(mContext, "保存课表失败", Toast.LENGTH_SHORT)

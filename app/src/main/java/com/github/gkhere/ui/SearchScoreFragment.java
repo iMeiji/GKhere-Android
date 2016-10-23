@@ -17,8 +17,9 @@ import android.widget.Toast;
 
 import com.github.gkhere.R;
 import com.github.gkhere.adapter.ScoreAdapter;
+import com.github.gkhere.bean.BaseInfoBean;
 import com.github.gkhere.bean.ScoreBean;
-import com.github.gkhere.utils.HtmlUtils;
+import com.github.gkhere.dao.BaseInfoDao;
 import com.github.gkhere.utils.ParseScoreUtils;
 import com.github.gkhere.utils.TextEncoderUtils;
 import com.zhy.http.okhttp.OkHttpUtils;
@@ -30,11 +31,20 @@ import java.util.List;
 
 import okhttp3.Call;
 
+import static com.github.gkhere.bean.BaseInfoBean.BASEINFO_hostUrl;
+import static com.github.gkhere.bean.BaseInfoBean.BASEINFO_searchScoreUrl;
+import static com.github.gkhere.bean.BaseInfoBean.BASEINFO_stuId;
+import static com.github.gkhere.bean.BaseInfoBean.BASEINFO_stuName;
+import static com.github.gkhere.bean.BaseInfoBean.BASEINFO_userAgent;
+
 /**
  * Created by Meiji on 2016/8/10.
  */
 public class SearchScoreFragment extends Fragment implements AdapterView.OnItemSelectedListener {
 
+    private static String BUTTON_Semester = "%B0%B4%D1%A7%C6%DA%B2%E9%D1%AF";
+    private static String BUTTON_Year = "%B0%B4%D1%A7%C4%EA%B2%E9%D1%AF";
+    private static String BUTTON_Inschool = "%D4%DA%D0%A3%D1%A7%CF%B0%B3%C9%BC%A8%B2%E9%D1%AF";
     private TextView tvContent;
     private Spinner spYear;
     private Spinner spSemester;
@@ -42,7 +52,6 @@ public class SearchScoreFragment extends Fragment implements AdapterView.OnItemS
     private ProgressBar progressBar;
     private ListView listScore;
     private Context mContext;
-
     // 下拉框(学年 学期 查询方式)及适配器
     private List<String> yearList = new ArrayList<>();
     private List<String> semesterList = new ArrayList<>();
@@ -50,19 +59,23 @@ public class SearchScoreFragment extends Fragment implements AdapterView.OnItemS
     private ArrayAdapter<String> yearAdapter;
     private ArrayAdapter<String> semesterAdapter;
     private ArrayAdapter<String> modeAdapter;
-
     // 请求数据
     private String ddlXN = "";
     private String ddlXQ = "";
     private String selectMode = "";
     private String requestButton = "";
     private String VIEWSTATE = "";
-    private static String BUTTON_Semester = "%B0%B4%D1%A7%C6%DA%B2%E9%D1%AF";
-    private static String BUTTON_Year = "%B0%B4%D1%A7%C4%EA%B2%E9%D1%AF";
-    private static String BUTTON_Inschool = "%D4%DA%D0%A3%D1%A7%CF%B0%B3%C9%BC%A8%B2%E9%D1%AF";
-
     private List<ScoreBean> scoreBeanList;
     private String mResponse;
+
+    private BaseInfoBean baseInfoBean = new BaseInfoBean();
+    // 请求数据
+    private String searchScoreUrl;
+    private String xh;
+    private String xm;
+    private String Referer;
+    private String Host;
+    private String UserAgent;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -76,6 +89,7 @@ public class SearchScoreFragment extends Fragment implements AdapterView.OnItemS
         View view = inflater.inflate(R.layout.fragment_searchscore, container,
                 false);
         initView(view);
+        initData();
         initYearList();
 
 //        initListener();
@@ -107,7 +121,7 @@ public class SearchScoreFragment extends Fragment implements AdapterView.OnItemS
     }
 
     private void initData() {
-        yearList = ParseScoreUtils.parseSelectYearList(mResponse);
+        //yearList = ParseScoreUtils.parseSelectYearList(mResponse);
         semesterList.add("1");
         semesterList.add("2");
         semesterList.add("3");
@@ -115,15 +129,21 @@ public class SearchScoreFragment extends Fragment implements AdapterView.OnItemS
         modeList.add("学年成绩");
         modeList.add("在校成绩");
 
-        initSpinner();
+        BaseInfoDao baseInfoDao = new BaseInfoDao(mContext);
+        searchScoreUrl = baseInfoDao.query(BASEINFO_searchScoreUrl);
+        xh = baseInfoDao.query(BASEINFO_stuId);
+        xm = baseInfoDao.query(BASEINFO_stuName);
+        Referer = baseInfoDao.query(BASEINFO_searchScoreUrl);
+        Host = baseInfoDao.query(BASEINFO_hostUrl);
+        UserAgent = baseInfoDao.query(BASEINFO_userAgent);
     }
 
     private void initYearList() {
 
         OkHttpUtils.get()
-                .url(HtmlUtils.searchscoreUrl)
-                .addHeader("Host", HtmlUtils.hostUrl)
-                .addHeader("Referer", HtmlUtils.searchscoreUrl)
+                .url(searchScoreUrl)
+                .addHeader("Host", Host)
+                .addHeader("Referer", searchScoreUrl)
                 .build()
                 .connTimeOut(5000)
                 .execute(new StringCallback() {
@@ -135,9 +155,12 @@ public class SearchScoreFragment extends Fragment implements AdapterView.OnItemS
 
                     @Override
                     public void onResponse(String response, int id) {
-                        mResponse = response;
+                        ParseScoreUtils utils = new ParseScoreUtils(response);
+                        yearList = utils.parseSelectYearList();
+                        //mResponse = response;
                         System.out.println("response" + response);
-                        initData();
+                        //initData();
+                        initSpinner();
                     }
                 });
     }
@@ -154,21 +177,21 @@ public class SearchScoreFragment extends Fragment implements AdapterView.OnItemS
 
     private void searchScore() {
         PostFormBuilder post = OkHttpUtils.post();
-        System.out.println(HtmlUtils.searchscoreUrl);
+        System.out.println(searchScoreUrl);
         if (ddlXN.equals("") || ddlXQ.equals("") || requestButton.equals("") || selectMode.equals("")) {
             return;
         }
-        post.url(HtmlUtils.searchscoreUrl)
-                .addParams("xh", HtmlUtils.getStuXh())
-                .addParams("xm", TextEncoderUtils.encoding(HtmlUtils.getStuName()))
+        post.url(searchScoreUrl)
+                .addParams("xh", xh)
+                .addParams("xm", TextEncoderUtils.encoding(xm))
                 .addParams("gnmkdm", "N121605")
                 .addParams("__VIEWSTATE", VIEWSTATE)
                 .addParams("ddlXN", ddlXN)
                 .addParams("ddlXQ", ddlXQ)
                 .addParams(requestButton, selectMode)
-                .addHeader("Host", HtmlUtils.hostUrl)
-                .addHeader("Referer", HtmlUtils.searchscoreUrl)
-                .addHeader("User-Agent", HtmlUtils.userAgent)
+                .addHeader("Referer", Referer)
+                .addHeader("Host", Host)
+                .addHeader("User-Agent", UserAgent)
                 .build()
                 .connTimeOut(5000)
                 .execute(new StringCallback() {

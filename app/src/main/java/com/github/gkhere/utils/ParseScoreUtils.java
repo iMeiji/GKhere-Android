@@ -97,7 +97,7 @@ public class ParseScoreUtils {
      *
      * @return
      */
-    public static List<String> parseSelectYearList(String response) {
+    public List<String> parseSelectYearList() {
         Document document = Jsoup.parse(response);
         Element select = document.getElementById("ddlXN");
         Elements options = select.select("option");

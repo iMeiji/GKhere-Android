@@ -2,7 +2,6 @@ package com.github.gkhere.ui;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -18,14 +17,25 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.github.gkhere.R;
+import com.github.gkhere.bean.BaseInfoBean;
+import com.github.gkhere.dao.BaseInfoDao;
 import com.github.gkhere.utils.HtmlUtils;
-import com.github.gkhere.utils.TextEncoderUtils;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.builder.PostFormBuilder;
 import com.zhy.http.okhttp.callback.BitmapCallback;
 import com.zhy.http.okhttp.callback.StringCallback;
 
 import okhttp3.Call;
+
+import static com.github.gkhere.bean.BaseInfoBean.BASEINFO_codeUrl;
+import static com.github.gkhere.bean.BaseInfoBean.BASEINFO_hostUrl;
+import static com.github.gkhere.bean.BaseInfoBean.BASEINFO_loginUrl;
+import static com.github.gkhere.bean.BaseInfoBean.BASEINFO_searchCourseUrl;
+import static com.github.gkhere.bean.BaseInfoBean.BASEINFO_searchScoreUrl;
+import static com.github.gkhere.bean.BaseInfoBean.BASEINFO_stuId;
+import static com.github.gkhere.bean.BaseInfoBean.BASEINFO_stuName;
+import static com.github.gkhere.bean.BaseInfoBean.BASEINFO_stuPasswd;
+import static com.github.gkhere.bean.BaseInfoBean.BASEINFO_userAgent;
 
 /**
  * Created by Meiji on 2016/8/10.
@@ -42,11 +52,11 @@ public class LoginActivity extends AppCompatActivity {
 
     private String TAG = "LoginActivity : ";
     private Context mContext;
-    private String mResponse;
-    private SharedPreferences sp;
     private String stuId;
     private String stuPasswd;
     private String code;
+
+    private BaseInfoBean baseInfoBean = new BaseInfoBean();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -59,11 +69,13 @@ public class LoginActivity extends AppCompatActivity {
         initListener();
     }
 
+    /**
+     * 读取sp保存的用户名和密码
+     */
     private void initData() {
-        sp = mContext.getSharedPreferences("stuLogin",
-                Context.MODE_PRIVATE);
-        stuId = sp.getString("stuId", "");
-        stuPasswd = sp.getString("stuPasswd", "");
+        BaseInfoDao baseInfoDao = new BaseInfoDao(mContext);
+        stuId = baseInfoDao.query(BASEINFO_stuId);
+        stuPasswd = baseInfoDao.query(BASEINFO_stuPasswd);
         etStuId.setText(stuId);
         etStuPasswd.setText(stuPasswd);
     }
@@ -146,9 +158,9 @@ public class LoginActivity extends AppCompatActivity {
                 .addParams("TextBox3", code)    // 验证码
                 .addParams("RadioButtonList1", "%D1%A7%C9%FA")
                 .addParams("Button1", "")
-                .addHeader("Host", HtmlUtils.hostUrl)
-                .addHeader("Referer", HtmlUtils.loginUrl)
-                .addHeader("User-Agent", HtmlUtils.userAgent)
+                .addHeader("Referer", baseInfoBean.getLoginUrl())
+                .addHeader("Host", baseInfoBean.getHostUrl())
+                .addHeader("User-Agent", baseInfoBean.getUserAgent())
                 .build()
                 .connTimeOut(5000)
                 .execute(new StringCallback() {
@@ -160,8 +172,8 @@ public class LoginActivity extends AppCompatActivity {
 
                     @Override
                     public void onResponse(String response, int id) {
-                        System.out.println("onResponse" + response);
                         // 请求成功，response就是得到的html文件（网页源代码）
+                        //System.out.println("onResponse" + response);
 
                         if (response.contains("验证码不正确")) {
                             // 如果源代码包含“验证码不正确”,自动切换验证码
@@ -180,14 +192,13 @@ public class LoginActivity extends AppCompatActivity {
                         } else {
                             //登录成功
                             Log.d(TAG, response);
-                            Toast.makeText(mContext, "登陆成功", Toast.LENGTH_SHORT)
-                                    .show();
-                            // 保存账号密码
-                            sp.edit().putString("stuId", stuId).commit();
-                            sp.edit().putString("stuPasswd", stuPasswd).commit();
+                            Toast.makeText(mContext, "登陆成功", Toast.LENGTH_SHORT).show();
 
-                            mResponse = response;
-                            initUrlData();
+                            // 保存response
+                            HtmlUtils.response = response;
+                            // 保存用户基本信息
+                            saveData();
+                            // 跳转
                             startActivity(new Intent(mContext, MainActivity.class));
                         }
                     }
@@ -195,20 +206,20 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     /**
-     * 初始化查询的Url
+     * 保存用户基本信息
+     * 学号 姓名 个人课表查询 学习成绩查询 登录密码
      */
-    private void initUrlData() {
-        HtmlUtils utils = new HtmlUtils(mResponse);
-        utils.encoder(mResponse);
-        String stuXh = HtmlUtils.getStuXh();
-        String stuName = HtmlUtils.getStuName();
-        HtmlUtils.searchscoreUrl = HtmlUtils.searchscoreUrl.replace("stuXh",
-                stuXh).replace
-                ("stuName", TextEncoderUtils.encoding(stuName));
-        HtmlUtils.searchcourseUrl = HtmlUtils.searchcourseUrl.replace("stuXh",
-                stuXh).replace
-                ("stuName", TextEncoderUtils.encoding(stuName));
-        System.out.println(TAG + "searchscoreUrl " + HtmlUtils.searchscoreUrl);
-        System.out.println(TAG + "searchcourseUrl " + HtmlUtils.searchcourseUrl);
+    private void saveData() {
+        BaseInfoBean bean = HtmlUtils.encoder(baseInfoBean);
+        BaseInfoDao baseInfoDao = new BaseInfoDao(mContext);
+        baseInfoDao.add(BASEINFO_stuId, bean.getStuId());
+        baseInfoDao.add(BASEINFO_stuName, bean.getStuName());
+        baseInfoDao.add(BASEINFO_stuPasswd, stuPasswd);
+        baseInfoDao.add(BASEINFO_hostUrl, bean.getHostUrl());
+        baseInfoDao.add(BASEINFO_codeUrl, bean.getCodeUrl());
+        baseInfoDao.add(BASEINFO_loginUrl, bean.getLoginUrl());
+        baseInfoDao.add(BASEINFO_userAgent, bean.getUserAgent());
+        baseInfoDao.add(BASEINFO_searchScoreUrl, bean.getSearchScoreUrl());
+        baseInfoDao.add(BASEINFO_searchCourseUrl, bean.getSearchCourseUrl());
     }
 }
