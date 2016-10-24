@@ -197,7 +197,7 @@ public class LoginActivity extends AppCompatActivity {
                             // 保存response
                             HtmlUtils.response = response;
                             // 保存用户基本信息
-                            saveData();
+                            saveDataToDB();
                             // 跳转
                             startActivity(new Intent(mContext, MainActivity.class));
                         }
@@ -209,7 +209,7 @@ public class LoginActivity extends AppCompatActivity {
      * 保存用户基本信息
      * 学号 姓名 个人课表查询 学习成绩查询 登录密码
      */
-    private void saveData() {
+    private void saveDataToDB() {
         BaseInfoBean bean = HtmlUtils.encoder(baseInfoBean);
         BaseInfoDao baseInfoDao = new BaseInfoDao(mContext);
         baseInfoDao.add(BASEINFO_stuId, bean.getStuId());

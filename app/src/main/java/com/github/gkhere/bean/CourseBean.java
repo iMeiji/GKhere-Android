@@ -4,65 +4,84 @@ package com.github.gkhere.bean;
  * Created by Meiji on 2016/8/11.
  */
 public class CourseBean {
-    private String courseName;
-    private String courseTime;
-    private String courseTimeDetail;
-    private String courseTeacher;
-    private String courseLocation;
-    private String courseInfo;
 
-    public String getCourseInfo() {
-        return courseInfo;
+    // 形势与政策-周一-第1-2节-第2-4周|双周-侯东栋-3-402-(调0177)
+
+    public static final String COURSEBEAN_course = "course";
+    public static final String COURSEBEAN_day = "day";
+    public static final String COURSEBEAN_timeinfo = "timeinfo";
+    public static final String COURSEBEAN_week = "week";
+    public static final String COURSEBEAN_teacher = "teacher";
+    public static final String COURSEBEAN_location = "location";
+    public static final String COURSEBEAN_extra = "extra";
+
+    private String course;
+    private String day;
+    private String timeinfo;
+    private String week;
+    private String teacher;
+    private String location;
+    private String extra;
+
+    public String getCourse() {
+        return course;
     }
 
-    public void setCourseInfo(String courseInfo) {
-        this.courseInfo = courseInfo;
+    public void setCourse(String course) {
+        this.course = course;
     }
 
-    public String getCourseLocation() {
-        return courseLocation;
+    public String getDay() {
+        return day;
     }
 
-    public void setCourseLocation(String courseLocation) {
-        this.courseLocation = courseLocation;
+    public void setDay(String day) {
+        this.day = day;
     }
 
-    public String getCourseTimeDetail() {
-        return courseTimeDetail;
+    public String getTimeinfo() {
+        return timeinfo;
     }
 
-    public void setCourseTimeDetail(String courseTimeDetail) {
-        this.courseTimeDetail = courseTimeDetail;
+    public void setTimeinfo(String timeinfo) {
+        this.timeinfo = timeinfo;
     }
 
-    public String getCourseName() {
-        return courseName;
+    public String getWeek() {
+        return week;
     }
 
-    public void setCourseName(String courseName) {
-        this.courseName = courseName;
+    public void setWeek(String week) {
+        this.week = week;
     }
 
-    public String getCourseTeacher() {
-        return courseTeacher;
+    public String getTeacher() {
+        return teacher;
     }
 
-    public void setCourseTeacher(String courseTeacher) {
-        this.courseTeacher = courseTeacher;
+    public void setTeacher(String teacher) {
+        this.teacher = teacher;
     }
 
-    public String getCourseTime() {
-        return courseTime;
+    public String getLocation() {
+        return location;
     }
 
-    public void setCourseTime(String courseTime) {
-        this.courseTime = courseTime;
+    public void setLocation(String location) {
+        this.location = location;
     }
+
+    public String getExtra() {
+        return extra;
+    }
+
+    public void setExtra(String extra) {
+        this.extra = extra;
+    }
+
 
     @Override
     public String toString() {
-        return getCourseName() + "-" + getCourseTime() + "-" + getCourseTimeDetail
-                () + "-" + getCourseTeacher() + "-" + getCourseLocation() + "-" +
-                getCourseInfo();
+        return "CourseBean : " + getCourse() + "-" + getDay() + "-" + getTimeinfo() + "-" + getWeek() + "-" + getTeacher() + "-" + getLocation() + "-" + getExtra();
     }
 }

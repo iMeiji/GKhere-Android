@@ -38,11 +38,11 @@ public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter
     @Override
     public void onBindViewHolder(CourseBeanViewHolder holder, int position) {
         CourseBean bean = list.get(position);
-        String week = setWeek(list.get(position).getCourseTime());
+        String week = setWeek(list.get(position).getWeek());
         holder.courseWeek.setText(week);
-        holder.courseName.setText(bean.getCourseName());
-        holder.courseInfo.setText(bean.getCourseLocation() + "," + bean.getCourseTimeDetail()
-                    + bean.getCourseInfo());
+        holder.courseName.setText(bean.getCourse());
+        holder.courseInfo.setText(bean.getLocation() + "," + bean.getTimeinfo()
+                + bean.getExtra());
 
     }
 
@@ -50,20 +50,6 @@ public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter
     @Override
     public int getItemCount() {
         return list.size();
-    }
-
-
-    public class CourseBeanViewHolder extends RecyclerView.ViewHolder {
-        private TextView courseWeek;
-        private TextView courseName;
-        private TextView courseInfo;
-
-        public CourseBeanViewHolder(View itemView) {
-            super(itemView);
-            courseWeek = (TextView) itemView.findViewById(R.id.course_week);
-            courseName = (TextView) itemView.findViewById(R.id.course_name);
-            courseInfo = (TextView) itemView.findViewById(R.id.course_info);
-        }
     }
 
     /**
@@ -97,5 +83,18 @@ public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter
                 break;
         }
         return time;
+    }
+
+    public class CourseBeanViewHolder extends RecyclerView.ViewHolder {
+        private TextView courseWeek;
+        private TextView courseName;
+        private TextView courseInfo;
+
+        public CourseBeanViewHolder(View itemView) {
+            super(itemView);
+            courseWeek = (TextView) itemView.findViewById(R.id.course_week);
+            courseName = (TextView) itemView.findViewById(R.id.course_name);
+            courseInfo = (TextView) itemView.findViewById(R.id.course_info);
+        }
     }
 }

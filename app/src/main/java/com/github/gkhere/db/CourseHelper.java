@@ -17,12 +17,13 @@ public class CourseHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         db.execSQL("create table course" +
                 "(id integer primary key autoincrement," +
-                "name varchar(100)," +
-                "time varchar(50)," +
-                "timedetail varchar(200)," +
-                "teacher varchar(50)," +
+                "course varchar(100)," +
+                "day varchar(50)," +
+                "timeinfo varchar(200)," +
+                "week varchar(50)," +
+                "teacher varchar(200)," +
                 "location varchar(200)," +
-                "info varchar(200))");
+                "extra varchar(200))");
     }
 
     @Override

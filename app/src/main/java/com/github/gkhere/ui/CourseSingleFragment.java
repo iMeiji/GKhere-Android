@@ -51,7 +51,7 @@ public class CourseSingleFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup
             container, @Nullable Bundle savedInstanceState) {
-        View view  = inflater.inflate(R.layout.fragment_coursesingle, container, false);
+        View view = inflater.inflate(R.layout.fragment_coursesingle, container, false);
 
         initView(view);
         return view;
@@ -80,8 +80,25 @@ public class CourseSingleFragment extends Fragment {
     private void searchCourseByDay() {
         CourseDao courseDao = new CourseDao(mContext);
         List<CourseBean> list = new ArrayList<>();
-        list = courseDao.query(mPage+"");
-        adapter = new CourseAdapter(mContext,list);
+        switch (mPage) {
+            case 1:
+                list = courseDao.query("周一");
+                break;
+            case 2:
+                list = courseDao.query("周二");
+                break;
+            case 3:
+                list = courseDao.query("周三");
+                break;
+            case 4:
+                list = courseDao.query("周四");
+                break;
+            case 5:
+                list = courseDao.query("周五");
+                break;
+        }
+
+        adapter = new CourseAdapter(mContext, list);
         rvCourse.setAdapter(adapter);
     }
 }

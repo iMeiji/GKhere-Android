@@ -11,6 +11,14 @@ import com.github.gkhere.db.CourseHelper;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.github.gkhere.bean.CourseBean.COURSEBEAN_course;
+import static com.github.gkhere.bean.CourseBean.COURSEBEAN_day;
+import static com.github.gkhere.bean.CourseBean.COURSEBEAN_extra;
+import static com.github.gkhere.bean.CourseBean.COURSEBEAN_location;
+import static com.github.gkhere.bean.CourseBean.COURSEBEAN_teacher;
+import static com.github.gkhere.bean.CourseBean.COURSEBEAN_timeinfo;
+import static com.github.gkhere.bean.CourseBean.COURSEBEAN_week;
+
 /**
  * Created by Meiji on 2016/8/16.
  */
@@ -22,36 +30,49 @@ public class CourseDao {
         this.mContext = mContext;
     }
 
-    public boolean add(String name, String time, String
-            timedetail, String teacher, String location,String info) {
+    public boolean add(String course,
+                       String day,
+                       String timeinfo,
+                       String week,
+                       String teacher,
+                       String location,
+                       String extra) {
         CourseHelper helper = new CourseHelper(mContext, 1);
         SQLiteDatabase db = helper.getWritableDatabase();
         ContentValues values = new ContentValues();
-        values.put("name", name);
-        values.put("time", time);
-        values.put("timedetail", timedetail);
-        values.put("teacher", teacher);
-        values.put("location", location);
-        values.put("info", info);
+        values.put(COURSEBEAN_course, course);
+        values.put(COURSEBEAN_day, day);
+        values.put(COURSEBEAN_timeinfo, timeinfo);
+        values.put(COURSEBEAN_week, week);
+        values.put(COURSEBEAN_teacher, teacher);
+        values.put(COURSEBEAN_location, location);
+        values.put(COURSEBEAN_extra, extra);
         long id = db.insert("course", null, values);
         db.close();
         return id != -1;
     }
 
-    public List<CourseBean> query(String time) {
+    /**
+     * 按星期查询
+     *
+     * @param day
+     * @return
+     */
+    public List<CourseBean> query(String day) {
         CourseHelper helper = new CourseHelper(mContext, 1);
         SQLiteDatabase db = helper.getReadableDatabase();
-        Cursor cursor = db.query("course", null, "time=?", new String[]{time},
+        Cursor cursor = db.query("course", null, "day=?", new String[]{day},
                 null, null, null);
         List<CourseBean> dayCourseList = new ArrayList<>();
         while (cursor.moveToNext()) {
             CourseBean bean = new CourseBean();
-            bean.setCourseName(cursor.getString(1));
-            bean.setCourseTime(cursor.getString(2));
-            bean.setCourseTimeDetail(cursor.getString(3));
-            bean.setCourseTeacher(cursor.getString(4));
-            bean.setCourseLocation(cursor.getString(5));
-            bean.setCourseInfo(cursor.getString(6));
+            bean.setCourse(cursor.getString(1));
+            bean.setDay(cursor.getString(2));
+            bean.setTimeinfo(cursor.getString(3));
+            bean.setWeek(cursor.getString(4));
+            bean.setTeacher(cursor.getString(5));
+            bean.setLocation(cursor.getString(6));
+            bean.setExtra(cursor.getString(7));
             dayCourseList.add(bean);
         }
         cursor.close();
@@ -66,12 +87,13 @@ public class CourseDao {
         List<CourseBean> dayCourseList = new ArrayList<>();
         while (cursor.moveToNext()) {
             CourseBean bean = new CourseBean();
-            bean.setCourseName(cursor.getString(1));
-            bean.setCourseTime(cursor.getString(2));
-            bean.setCourseTimeDetail(cursor.getString(3));
-            bean.setCourseTeacher(cursor.getString(4));
-            bean.setCourseLocation(cursor.getString(5));
-            bean.setCourseInfo(cursor.getString(6));
+            bean.setCourse(cursor.getString(1));
+            bean.setDay(cursor.getString(2));
+            bean.setTimeinfo(cursor.getString(3));
+            bean.setWeek(cursor.getString(4));
+            bean.setTeacher(cursor.getString(5));
+            bean.setLocation(cursor.getString(6));
+            bean.setExtra(cursor.getString(7));
             dayCourseList.add(bean);
         }
         cursor.close();

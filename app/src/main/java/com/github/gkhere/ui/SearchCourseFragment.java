@@ -129,18 +129,18 @@ public class SearchCourseFragment extends Fragment {
         courseDao.deleteAll();
         Boolean saveSuccess = true;
         for (CourseBean bean : courseBeanList) {
-            String name = bean.getCourseName();
-            String time = bean.getCourseTime();
-            String timeDetail = bean.getCourseTimeDetail();
-            String teacher = bean.getCourseTeacher();
-            String location = bean.getCourseLocation();
-            String info = bean.getCourseInfo();
-            boolean isSuccess = courseDao.add(name, time, timeDetail, teacher,
-                    location, info);
+            String course = bean.getCourse();
+            String day = bean.getDay();
+            String timeinfo = bean.getTimeinfo();
+            String week = bean.getWeek();
+            String teacher = bean.getTeacher();
+            String location = bean.getLocation();
+            String extra = bean.getExtra();
+            boolean isSuccess = courseDao.add(course, day, timeinfo, week,
+                    teacher, location, extra);
             if (!isSuccess) {
                 saveSuccess = false;
-                Toast.makeText(mContext, "保存课表失败", Toast.LENGTH_SHORT)
-                        .show();
+                Toast.makeText(mContext, "保存课表失败", Toast.LENGTH_SHORT).show();
                 break;
             }
         }

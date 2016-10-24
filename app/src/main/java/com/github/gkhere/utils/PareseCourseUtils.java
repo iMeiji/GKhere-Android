@@ -17,112 +17,48 @@ import java.util.List;
 
 public class PareseCourseUtils {
 
+    private static List<String> preList = new ArrayList<>();
     private static List<CourseBean> courseList = new ArrayList<>();
 
     public static List<CourseBean> getCourse(String response) {
-        Document document = Jsoup.parse(response);
-        Element table1 = document.getElementById("Table1");
-        //拿到tbody
-        Element tbody = table1.select("tbody").get(0);
-        //去除前面两行 ，时间和早晨
-        tbody.child(0).remove();
-        tbody.child(0).remove();
-        //去除上午，下午，晚上
-        tbody.child(0).child(0).remove();
-        tbody.child(4).child(0).remove();
-        tbody.child(8).child(0).remove();
-        //去除无用行之后，还剩余
-        Elements trs = tbody.select("tr");
-        int rowNum = trs.size(); //10
-        //用map储存数据
-        for (int i = 0; i < rowNum; i++) {
-            if (i % 2 == 0) {
-                //拿到每一行
-                Element tr = trs.get(i);
-                //一星期7天
-                for (int j = 0; j < 7 ; j++) {
-                    Element colum = tr.child(j);
-                    if (colum.hasAttr("rowspan")) {
-                        CourseBean course = new CourseBean();
-                        String text = colum.text();
-                        System.out.println("所有课表 ：" + text);
-                        String[] strings = text.split(" ");
-                        /**
-                         * 有三张情况
-                         * 一.线性代数 周四第3,4节{第1-7周} 易宗向 8-403 (调0334) 线性代数 周四第3,4节{第9-14周} 易宗向 8-403 (调0334) C#课程设计 周四第3,4节{第16-16周} 陈刚 9-602
-                         * 二.大学英语 周一第1,2节{第1-16周} 刘颖 4-501 C#课程设计 周一第1,2节{第16-16周} 陈刚 9-602
-                         * 三.C#课程设计 周二第3,4节{第16-16周} 陈刚 9-602
-                         */
-                        if (strings.length > 9) {
-                            course.setCourseName(strings[0]);
-                            String timeInfos = strings[1];
-                            String time = timeInfos.substring(0, 2);
-                            course.setCourseTime(setWeek(time));
-                            course.setCourseTimeDetail(timeInfos.substring(2,
-                                    timeInfos.length()).replace(",", "-"));
-                            course.setCourseTeacher(strings[2]);
-                            course.setCourseLocation(strings[3]);
-                            if (strings[4].contains("调")) {
-                                course.setCourseInfo(strings[4]);
-                            }
-                            courseList.add(course);
 
-                            CourseBean course2 = new CourseBean();
-                            course2.setCourseName(strings[5]);
-                            String timeInfos2 = strings[6];
-                            String time2 = timeInfos2.substring(0, 2);
-                            course2.setCourseTime(setWeek(time2));
-                            course2.setCourseTimeDetail(timeInfos2.substring(2,
-                                    timeInfos2.length()).replace(",", "-"));
-                            course2.setCourseTeacher(strings[7]);
-                            course2.setCourseLocation(strings[8]);
-                            if (strings[9].contains("调")) {
-                                course2.setCourseInfo(strings[9]);
-                            }
-                            courseList.add(course2);
-
-                            CourseBean course3 = new CourseBean();
-                            course3.setCourseName(strings[10]);
-                            String timeInfos3 = strings[11];
-                            String time3 = timeInfos3.substring(0, 2);
-                            course3.setCourseTime(setWeek(time3));
-                            course3.setCourseTimeDetail(timeInfos3.substring(2,
-                                    timeInfos3.length()).replace(",", "-"));
-                            course3.setCourseTeacher(strings[12]);
-                            course3.setCourseLocation(strings[13]);
-                            course3.setCourseInfo("");
-                            courseList.add(course3);
+        try {
+            Document document = Jsoup.parse(response);
+            Element table1 = document.getElementById("Table1");
+            // 拿到tbody
+            Element tbody = table1.select("tbody").get(0);
+            // 去除前面两行 ，时间和早晨
+            tbody.child(0).remove();
+            tbody.child(0).remove();
+            // 去除上午，下午，晚上
+            tbody.child(0).child(0).remove();
+            tbody.child(4).child(0).remove();
+            tbody.child(8).child(0).remove();
+            // 去除无用行之后，还剩余
+            Elements trs = tbody.select("tr");
+            int rowNum = trs.size(); //10
+            // 用map储存数据
+            for (int i = 0; i < rowNum; i++) {
+                if (i % 2 == 0) {
+                    // 拿到每一行
+                    Element tr = trs.get(i);
+                    // 一星期7天
+                    for (int j = 0; j < 7; j++) {
+                        Element td = tr.child(j);
+                        if (td.hasAttr("rowspan")) {
+                            String content = td.text();
+                            System.out.println("所有课表 ：" + content);
+                            preList.add(content);
                         }
-                        else if (strings.length > 4 && strings.length <= 8 ) {
-                            addCourse(course, strings, 0);
-                            CourseBean course2 = new CourseBean();
-                            addCourse(course2, strings, 4);
-                        } else if (strings.length == 4) {
-                            addCourse(course, strings, 0);
-                        }
-
                     }
                 }
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("解析课表错误");
         }
 
-        for (CourseBean bean : courseList) {
-            System.out.println(bean.toString());
-        }
-        return courseList;
-    }
-
-    private static void addCourse(CourseBean course, String[] strings,int count) {
-        course.setCourseName(strings[count]);
-        String timeInfos = strings[++count];
-        String time = timeInfos.substring(0, 2);
-        course.setCourseTime(setWeek(time));
-        course.setCourseTimeDetail(timeInfos.substring(2,
-                timeInfos.length()).replace(",", "-"));
-        course.setCourseTeacher(strings[++count]);
-        course.setCourseLocation(strings[++count]);
-        course.setCourseInfo("");
-        courseList.add(course);
+        return SplitCourse();
     }
 
     public static String setWeek(String text) {
@@ -155,5 +91,311 @@ public class PareseCourseUtils {
                 break;
         }
         return text;
+    }
+
+    private static List<CourseBean> SplitCourse() {
+        for (int i = 0; i < preList.size(); i++) {
+
+            //System.out.println("所有课程 : " + preList.get(i));
+            String content = preList.get(i);
+            String[] splits = content.split(" ");
+            //            System.out.println(courses.length);
+            if (splits.length == 4) {
+                // 嵌入式系统基础 周二第1,2节{第1-15周} 彭玲 工一-204
+                try {
+                    CourseBean bean = new CourseBean();
+                    String course = splits[0];
+                    String day = splits[1].substring(0, 2);
+                    int di = splits[1].indexOf("第");
+                    int jie = splits[1].indexOf("节") + 1;
+                    String timeinfo = splits[1].substring(di, jie).replace(",", "-");
+                    int lastdi = splits[1].lastIndexOf("第");
+                    //int lastjie = splits[1].indexOf("周") + 1;
+                    String week = splits[1].substring(lastdi, splits[1].length() - 1);
+                    String teacher = splits[2];
+                    String location = splits[3];
+                    String extra = "";
+                    bean.setCourse(course);
+                    bean.setDay(day);
+                    bean.setTimeinfo(timeinfo);
+                    bean.setWeek(week);
+                    bean.setTeacher(teacher);
+                    bean.setLocation(location);
+                    bean.setExtra(extra);
+                    courseList.add(bean);
+                } catch (ArrayIndexOutOfBoundsException e) {
+                    e.printStackTrace();
+                    throw new RuntimeException("封装课表错误 - 1");
+                }
+            } else if (splits.length == 5) {
+                // 形势与政策 周五第5,6节{第6-6周} 侯东栋 3-303 (调0177)
+                try {
+                    CourseBean bean = new CourseBean();
+                    String course = splits[0];
+                    String day = splits[1].substring(0, 2);
+                    int di = splits[1].indexOf("第");
+                    int jie = splits[1].indexOf("节") + 1;
+                    String timeinfo = splits[1].substring(di, jie).replace(",", "-");
+                    int lastdi = splits[1].lastIndexOf("第");
+                    String week = splits[1].substring(lastdi, splits[1].length() - 1);
+                    String teacher = splits[2];
+                    String location = splits[3];
+                    String extra = splits[4];
+                    bean.setCourse(course);
+                    bean.setDay(day);
+                    bean.setTimeinfo(timeinfo);
+                    bean.setWeek(week);
+                    bean.setTeacher(teacher);
+                    bean.setLocation(location);
+                    bean.setExtra(extra);
+                    courseList.add(bean);
+                } catch (ArrayIndexOutOfBoundsException e) {
+                    e.printStackTrace();
+                    throw new RuntimeException("封装课表错误 - 2");
+                }
+            } else if (splits.length == 8) {
+                // 大学英语 周一第1,2节{第1-16周} 刘颖 4-501 C#课程设计 周一第1,2节{第16-16周} 陈刚 9-602
+                try {
+                    CourseBean bean = new CourseBean();
+                    String course = splits[0];
+                    String day = splits[1].substring(0, 2);
+                    int di = splits[1].indexOf("第");
+                    int jie = splits[1].indexOf("节") + 1;
+                    String timeinfo = splits[1].substring(di, jie).replace(",", "-");
+                    int lastdi = splits[1].lastIndexOf("第");
+                    String week = splits[1].substring(lastdi, splits[1].length() - 1);
+                    String teacher = splits[2];
+                    String location = splits[3];
+                    String extra = "";
+                    bean.setCourse(course);
+                    bean.setDay(day);
+                    bean.setTimeinfo(timeinfo);
+                    bean.setWeek(week);
+                    bean.setTeacher(teacher);
+                    bean.setLocation(location);
+                    bean.setExtra(extra);
+                    courseList.add(bean);
+
+                    CourseBean bean2 = new CourseBean();
+                    String course2 = splits[5];
+                    String day2 = splits[6].substring(0, 2);
+                    int di2 = splits[1].indexOf("第");
+                    int jie2 = splits[1].indexOf("节") + 1;
+                    String timeinfo2 = splits[6].substring(di2, jie2).replace(",", "-");
+                    int lastdi2 = splits[1].lastIndexOf("第");
+                    String week2 = splits[6].substring(lastdi2, splits[6].length() - 1);
+                    String teacher2 = splits[7];
+                    String location2 = splits[8];
+                    String extra2 = "";
+                    bean2.setCourse(course2);
+                    bean2.setDay(day2);
+                    bean2.setTimeinfo(timeinfo2);
+                    bean2.setWeek(week2);
+                    bean2.setTeacher(teacher2);
+                    bean2.setLocation(location2);
+                    bean2.setExtra(extra2);
+                    courseList.add(bean2);
+                } catch (ArrayIndexOutOfBoundsException e) {
+                    e.printStackTrace();
+                    throw new RuntimeException("封装课表错误 - 3");
+                }
+            } else if (splits.length == 9) {
+
+                if (splits[4].contains("调")) {
+                    // 线性代数 周四第3,4节{第9-14周} 易宗向 8-403 (调0334) C#课程设计 周四第3,4节{第16-16周} 陈刚 9-602
+                    try {
+                        CourseBean bean = new CourseBean();
+                        String course = splits[0];
+                        String day = splits[1].substring(0, 2);
+                        int di = splits[1].indexOf("第");
+                        int jie = splits[1].indexOf("节") + 1;
+                        String timeinfo = splits[1].substring(di, jie).replace(",", "-");
+                        int lastdi = splits[1].lastIndexOf("第");
+                        String week = splits[1].substring(lastdi, splits[1].length() - 1);
+                        String teacher = splits[2];
+                        String location = splits[3];
+                        String extra = splits[4];
+                        bean.setCourse(course);
+                        bean.setDay(day);
+                        bean.setTimeinfo(timeinfo);
+                        bean.setWeek(week);
+                        bean.setTeacher(teacher);
+                        bean.setLocation(location);
+                        bean.setExtra(extra);
+                        courseList.add(bean);
+
+                        CourseBean bean2 = new CourseBean();
+                        String course2 = splits[5];
+                        String day2 = splits[6].substring(0, 2);
+                        int di2 = splits[1].indexOf("第");
+                        int jie2 = splits[1].indexOf("节") + 1;
+                        String timeinfo2 = splits[6].substring(di2, jie2).replace(",", "-");
+                        int lastdi2 = splits[6].lastIndexOf("第");
+                        String week2 = splits[6].substring(lastdi2, splits[6].length() - 1);
+                        String teacher2 = splits[7];
+                        String location2 = splits[8];
+                        String extra2 = "";
+                        bean2.setCourse(course2);
+                        bean2.setDay(day2);
+                        bean2.setTimeinfo(timeinfo2);
+                        bean2.setWeek(week2);
+                        bean2.setTeacher(teacher2);
+                        bean2.setLocation(location2);
+                        bean2.setExtra(extra2);
+                        courseList.add(bean2);
+                    } catch (ArrayIndexOutOfBoundsException e) {
+                        e.printStackTrace();
+                        throw new RuntimeException("封装课表错误 - 3");
+                    }
+                } else if (splits[splits.length - 1].contains("调")) {
+                    // C#课程设计 周四第3,4节{第16-16周} 陈刚 9-602 线性代数 周四第3,4节{第9-14周} 易宗向 8-403 (调0334)
+                    try {
+                        CourseBean bean = new CourseBean();
+                        String course = splits[0];
+                        String day = splits[1].substring(0, 2);
+                        int di = splits[1].indexOf("第");
+                        int jie = splits[1].indexOf("节") + 1;
+                        String timeinfo = splits[1].substring(di, jie).replace(",", "-");
+                        int lastdi = splits[1].lastIndexOf("第");
+                        String week = splits[1].substring(lastdi, splits[1].length() - 1);
+                        String teacher = splits[2];
+                        String location = splits[3];
+                        String extra = "";
+                        bean.setCourse(course);
+                        bean.setDay(day);
+                        bean.setTimeinfo(timeinfo);
+                        bean.setWeek(week);
+                        bean.setTeacher(teacher);
+                        bean.setLocation(location);
+                        bean.setExtra(extra);
+                        courseList.add(bean);
+
+                        CourseBean bean2 = new CourseBean();
+                        String course2 = splits[4];
+                        String day2 = splits[5].substring(0, 2);
+                        int di2 = splits[1].indexOf("第");
+                        int jie2 = splits[1].indexOf("节") + 1;
+                        String timeinfo2 = splits[5].substring(di2, jie2).replace(",", "-");
+                        int lastdi2 = splits[1].lastIndexOf("第");
+                        String week2 = splits[5].substring(lastdi2, splits[5].length() - 1);
+                        String teacher2 = splits[6];
+                        String location2 = splits[7];
+                        String extra2 = splits[7];
+                        bean2.setCourse(course2);
+                        bean2.setDay(day2);
+                        bean2.setTimeinfo(timeinfo2);
+                        bean2.setWeek(week2);
+                        bean2.setTeacher(teacher2);
+                        bean2.setLocation(location2);
+                        bean2.setExtra(extra2);
+                        courseList.add(bean2);
+                    } catch (ArrayIndexOutOfBoundsException e) {
+                        e.printStackTrace();
+                        throw new RuntimeException("封装课表错误 - 3");
+                    }
+                }
+
+            } else if (splits.length == 10) {
+                // 形势与政策 周一第1,2节{第2-4周|双周} 侯东栋 3-402 (调0177) 形势与政策 周一第1,2节{第8-14周|双周} 侯东栋 3-402 (调0177)
+                try {
+                    CourseBean bean = new CourseBean();
+                    String course = splits[0];
+                    String day = splits[1].substring(0, 2);
+                    int di = splits[1].indexOf("第");
+                    int jie = splits[1].indexOf("节") + 1;
+                    String timeinfo = splits[1].substring(di, jie).replace(",", "-");
+                    int lastdi = splits[1].lastIndexOf("第");
+                    String week = splits[1].substring(lastdi, splits[1].length() - 1);
+                    String teacher = splits[2];
+                    String location = splits[3];
+                    String extra = splits[4];
+                    bean.setCourse(course);
+                    bean.setDay(day);
+                    bean.setTimeinfo(timeinfo);
+                    bean.setWeek(week);
+                    bean.setTeacher(teacher);
+                    bean.setLocation(location);
+                    bean.setExtra(extra);
+                    courseList.add(bean);
+
+                    CourseBean bean2 = new CourseBean();
+                    String course2 = splits[5];
+                    String day2 = splits[6].substring(0, 2);
+                    int di2 = splits[1].indexOf("第");
+                    int jie2 = splits[1].indexOf("节") + 1;
+                    String timeinfo2 = splits[6].substring(di2, jie2).replace(",", "-");
+                    int lastdi2 = splits[1].lastIndexOf("第");
+                    String week2 = splits[6].substring(lastdi2, splits[6].length() - 1);
+                    String teacher2 = splits[7];
+                    String location2 = splits[8];
+                    String extra2 = splits[9];
+                    bean2.setCourse(course2);
+                    bean2.setDay(day2);
+                    bean2.setTimeinfo(timeinfo2);
+                    bean2.setWeek(week2);
+                    bean2.setTeacher(teacher2);
+                    bean2.setLocation(location2);
+                    bean2.setExtra(extra2);
+                    courseList.add(bean2);
+                } catch (ArrayIndexOutOfBoundsException e) {
+                    e.printStackTrace();
+                    throw new RuntimeException("封装课表错误 - 3");
+                }
+            } else if (splits.length == 14) {
+                // 线性代数 周四第3,4节{第1-7周} 易宗向 8-403 (调0334) 线性代数 周四第3,4节{第9-14周} 易宗向 8-403 (调0334) C#课程设计 周四第3,4节{第16-16周} 陈刚 9-602
+                if (splits[4].contains("调")) {
+                    try {
+                        CourseBean bean = new CourseBean();
+                        String course = splits[0];
+                        String day = splits[1].substring(0, 2);
+                        int di = splits[1].indexOf("第");
+                        int jie = splits[1].indexOf("节") + 1;
+                        String timeinfo = splits[1].substring(di, jie).replace(",", "-");
+                        int lastdi = splits[1].lastIndexOf("第");
+                        String week = splits[1].substring(lastdi, splits[1].length() - 1);
+                        String teacher = splits[2];
+                        String location = splits[3];
+                        String extra = splits[4];
+                        bean.setCourse(course);
+                        bean.setDay(day);
+                        bean.setTimeinfo(timeinfo);
+                        bean.setWeek(week);
+                        bean.setTeacher(teacher);
+                        bean.setLocation(location);
+                        bean.setExtra(extra);
+                        courseList.add(bean);
+
+                        CourseBean bean2 = new CourseBean();
+                        String course2 = splits[5];
+                        String day2 = splits[6].substring(0, 2);
+                        int di2 = splits[1].indexOf("第");
+                        int jie2 = splits[1].indexOf("节") + 1;
+                        String timeinfo2 = splits[6].substring(di2, jie2).replace(",", "-");
+                        int lastdi2 = splits[6].lastIndexOf("第");
+                        String week2 = splits[6].substring(lastdi2, splits[6].length() - 1);
+                        String teacher2 = splits[7];
+                        String location2 = splits[8];
+                        String extra2 = "";
+                        bean2.setCourse(course2);
+                        bean2.setDay(day2);
+                        bean2.setTimeinfo(timeinfo2);
+                        bean2.setWeek(week2);
+                        bean2.setTeacher(teacher2);
+                        bean2.setLocation(location2);
+                        bean2.setExtra(extra2);
+                        courseList.add(bean2);
+                    } catch (ArrayIndexOutOfBoundsException e) {
+                        e.printStackTrace();
+                        throw new RuntimeException("封装课表错误 - 3");
+                    }
+                }
+            }
+        }
+
+        for (CourseBean list : courseList) {
+            System.out.println(list);
+        }
+
+        return courseList;
     }
 }
