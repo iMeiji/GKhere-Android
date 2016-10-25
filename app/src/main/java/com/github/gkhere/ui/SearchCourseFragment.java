@@ -99,12 +99,12 @@ public class SearchCourseFragment extends Fragment {
                 .addParams("xh", xh)
                 .addParams("xm", TextEncoderUtils.encoding(xm))
                 .addParams("gnmkdm", "N121603")
-                // 查询本学期课表有bug 待解决
-                .addParams("__EVENTTARGET", "xnd")
-                .addParams("__EVENTARGUMENT", "")
-                .addParams("__VIEWSTATE", getString(R.string.search_course_viewstate))
-                .addParams("xnd", "2015-2016")
-                .addParams("xqd", "1")
+                // 查询本学期课表 不需要设置以下参数
+//                .addParams("__EVENTTARGET", "xnd")
+//                .addParams("__EVENTARGUMENT", "")
+//                .addParams("__VIEWSTATE", getString(R.string.search_course_viewstate))
+//                .addParams("xnd", "2015-2016")
+//                .addParams("xqd", "1")
                 .addHeader("Referer", Referer)
                 .addHeader("Host", Host)
                 .addHeader("User-Agent", UserAgent)
@@ -118,32 +118,34 @@ public class SearchCourseFragment extends Fragment {
 
                     @Override
                     public void onResponse(String response, int id) {
-                        courseBeanList = PareseCourseUtils.getCourse(response);
-                        saveDataToDB();
+                        saveDataToDB(response);
                     }
                 });
     }
 
-    private void saveDataToDB() {
+    private void saveDataToDB(String response) {
         CourseDao courseDao = new CourseDao(mContext);
-        courseDao.deleteAll();
-        Boolean saveSuccess = true;
-        for (CourseBean bean : courseBeanList) {
-            String course = bean.getCourse();
-            String day = bean.getDay();
-            String timeinfo = bean.getTimeinfo();
-            String week = bean.getWeek();
-            String teacher = bean.getTeacher();
-            String location = bean.getLocation();
-            String extra = bean.getExtra();
-            boolean isSuccess = courseDao.add(course, day, timeinfo, week,
-                    teacher, location, extra);
-            if (!isSuccess) {
-                saveSuccess = false;
-                Toast.makeText(mContext, "保存课表失败", Toast.LENGTH_SHORT).show();
-                break;
+        //courseDao.deleteAll();
+        if (courseDao.queryAll().isEmpty()) {
+            Boolean saveSuccess = true;
+            courseBeanList = PareseCourseUtils.getCourse(response);
+            for (CourseBean bean : courseBeanList) {
+                String course = bean.getCourse();
+                String day = bean.getDay();
+                String timeinfo = bean.getTimeinfo();
+                String week = bean.getWeek();
+                String teacher = bean.getTeacher();
+                String location = bean.getLocation();
+                String extra = bean.getExtra();
+                boolean isSuccess = courseDao.add(course, day, timeinfo, week,
+                        teacher, location, extra);
+                if (!isSuccess) {
+                    saveSuccess = false;
+                    Toast.makeText(mContext, "保存课表失败", Toast.LENGTH_SHORT).show();
+                    break;
+                }
             }
+            Toast.makeText(mContext, "保存课表成功", Toast.LENGTH_SHORT).show();
         }
-        Toast.makeText(mContext, "保存课表成功", Toast.LENGTH_SHORT).show();
     }
 }

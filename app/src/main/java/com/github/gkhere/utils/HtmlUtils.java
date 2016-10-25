@@ -14,20 +14,9 @@ import java.util.List;
  * Created by Meiji on 2016/8/10.
  */
 
-
 public class HtmlUtils {
 
-    public static String hostUrl = "61.142.33.204";
-    public static String codeUrl = "http://61.142.33.204/CheckCode.aspx";
-    public static String loginUrl = "http://61.142.33.204/default2.aspx";
-
-    public static String searchCourseUrl = "http://61.142.33.204/xskbcx.aspx?xh=stuId&xm=stuName&gnmkdm=N121603";//个人课表查询
-    public static String searchScoreUrl = "http://61.142.33.204/xscj_gc.aspx?xh=stuId&xm=stuName&gnmkdm=N121605";//学习成绩查询
-
     public static String response;
-    public static String userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) " +
-            "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 " +
-            "Safari/537.36";
 
     public static BaseInfoBean encoder(BaseInfoBean baseInfoBean) {
 

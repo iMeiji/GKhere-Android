@@ -58,11 +58,10 @@ public class CourseDao {
      * @param day
      * @return
      */
-    public List<CourseBean> query(String day) {
+    public List<CourseBean> queryByDay(String day) {
         CourseHelper helper = new CourseHelper(mContext, 1);
         SQLiteDatabase db = helper.getReadableDatabase();
-        Cursor cursor = db.query("course", null, "day=?", new String[]{day},
-                null, null, null);
+        Cursor cursor = db.query("course", null, "day=?", new String[]{day}, null, null, null);
         List<CourseBean> dayCourseList = new ArrayList<>();
         while (cursor.moveToNext()) {
             CourseBean bean = new CourseBean();
@@ -80,10 +79,38 @@ public class CourseDao {
         return dayCourseList;
     }
 
+    /**
+     * 按周查询
+     *
+     * @param week
+     * @return
+     */
+    public List<CourseBean> queryByWeek(String week) {
+        CourseHelper helper = new CourseHelper(mContext, 1);
+        SQLiteDatabase db = helper.getReadableDatabase();
+        Cursor cursor = db.query("course", null, "week=?", new String[]{week}, null, null, null);
+        List<CourseBean> weekCourseList = new ArrayList<>();
+        while (cursor.moveToNext()) {
+            CourseBean bean = new CourseBean();
+            bean.setCourse(cursor.getString(1));
+            bean.setDay(cursor.getString(2));
+            bean.setTimeinfo(cursor.getString(3));
+            bean.setWeek(cursor.getString(4));
+            bean.setTeacher(cursor.getString(5));
+            bean.setLocation(cursor.getString(6));
+            bean.setExtra(cursor.getString(7));
+            weekCourseList.add(bean);
+        }
+        cursor.close();
+        db.close();
+        return weekCourseList;
+    }
+
+
     public List<CourseBean> queryAll() {
         CourseHelper helper = new CourseHelper(mContext, 1);
         SQLiteDatabase db = helper.getReadableDatabase();
-        Cursor cursor = db.query("course", null, null, null, null, null, "time asc");
+        Cursor cursor = db.query("course", null, null, null, null, null, "week asc");
         List<CourseBean> dayCourseList = new ArrayList<>();
         while (cursor.moveToNext()) {
             CourseBean bean = new CourseBean();

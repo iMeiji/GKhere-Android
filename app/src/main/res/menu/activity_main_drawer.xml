@@ -4,17 +4,17 @@
 
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_camera"
-            android:icon="@drawable/ic_menu_camera"
-            android:title="Import"/>
-        <item
-            android:id="@+id/nav_gallery"
-            android:icon="@drawable/ic_menu_gallery"
-            android:title="Gallery"/>
-        <item
-            android:id="@+id/nav_slideshow"
+            android:id="@+id/main"
             android:icon="@drawable/ic_menu_slideshow"
-            android:title="Slideshow"/>
+            android:title="主页"/>
+        <item
+            android:id="@+id/search_score"
+            android:icon="@drawable/ic_menu_camera"
+            android:title="查成绩"/>
+        <item
+            android:id="@+id/search_course"
+            android:icon="@drawable/ic_menu_gallery"
+            android:title="查课表"/>
         <item
             android:id="@+id/nav_manage"
             android:icon="@drawable/ic_menu_manage"

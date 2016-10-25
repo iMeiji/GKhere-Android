@@ -82,19 +82,19 @@ public class CourseSingleFragment extends Fragment {
         List<CourseBean> list = new ArrayList<>();
         switch (mPage) {
             case 1:
-                list = courseDao.query("周一");
+                list = courseDao.queryByDay("周一");
                 break;
             case 2:
-                list = courseDao.query("周二");
+                list = courseDao.queryByDay("周二");
                 break;
             case 3:
-                list = courseDao.query("周三");
+                list = courseDao.queryByDay("周三");
                 break;
             case 4:
-                list = courseDao.query("周四");
+                list = courseDao.queryByDay("周四");
                 break;
             case 5:
-                list = courseDao.query("周五");
+                list = courseDao.queryByDay("周五");
                 break;
         }
 

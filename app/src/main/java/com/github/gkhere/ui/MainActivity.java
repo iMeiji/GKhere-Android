@@ -21,7 +21,7 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private TextView tvStuContent;
-    private Context mContext;
+    private Context mContext = this;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,7 +44,6 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        mContext = getApplicationContext();
     }
 
     @Override
@@ -72,9 +71,9 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
+//        if (id == R.id.action_settings) {
+//            return true;
+//        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -85,17 +84,17 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
+        if (id == R.id.main) {
+
+            replaceFragment(new MainFragment());
+
+        } else if (id == R.id.search_score) {
 
             replaceFragment(new SearchScoreFragment());
 
-        } else if (id == R.id.nav_gallery) {
+        } else if (id == R.id.search_course) {
 
             replaceFragment(new SearchCourseFragment());
-
-        } else if (id == R.id.nav_slideshow) {
-
-
 
         } else if (id == R.id.nav_manage) {
 

@@ -1,5 +1,6 @@
 package com.github.gkhere.ui;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -8,7 +9,6 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -51,26 +51,26 @@ public class LoginActivity extends AppCompatActivity {
     private Button btLogin;
 
     private String TAG = "LoginActivity : ";
-    private Context mContext;
+    private Context mContext = this;
     private String stuId;
     private String stuPasswd;
     private String code;
 
     private BaseInfoBean baseInfoBean = new BaseInfoBean();
+    private boolean isFirstTime;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        mContext = getApplicationContext();
         initView();
         initData();
-        initCode();
+        initCode(baseInfoBean.getCodeUrl());
         initListener();
     }
 
     /**
-     * 读取sp保存的用户名和密码
+     * 读取已保存的用户名和密码
      */
     private void initData() {
         BaseInfoDao baseInfoDao = new BaseInfoDao(mContext);
@@ -78,6 +78,9 @@ public class LoginActivity extends AppCompatActivity {
         stuPasswd = baseInfoDao.query(BASEINFO_stuPasswd);
         etStuId.setText(stuId);
         etStuPasswd.setText(stuPasswd);
+        if (TextUtils.isEmpty(stuId)) {
+            isFirstTime = true;
+        }
     }
 
     private void initListener() {
@@ -93,10 +96,10 @@ public class LoginActivity extends AppCompatActivity {
     /**
      * 获取验证码
      */
-    private void initCode() {
+    private void initCode(String codeUrl) {
         OkHttpUtils
                 .get()
-                .url(HtmlUtils.codeUrl)
+                .url(codeUrl)
                 .tag(this)
                 .build()
                 .connTimeOut(5000)
@@ -119,8 +122,7 @@ public class LoginActivity extends AppCompatActivity {
      * @param view
      */
     public void requestCode(View view) {
-        HtmlUtils.codeUrl += '?';
-        initCode();
+        initCode(baseInfoBean.getCodeUrl() + "?");
     }
 
     private void initView() {
@@ -149,7 +151,7 @@ public class LoginActivity extends AppCompatActivity {
 
         // 请求登录
         PostFormBuilder post = OkHttpUtils.post();
-        post.url(HtmlUtils.loginUrl)
+        post.url(baseInfoBean.getLoginUrl())
                 // 下面数据抓包可以得到
                 .addParams("__VIEWSTATE",
                         "dDw3OTkxMjIwNTU7Oz5vJ/yYUi9dD4fEnRUKesDFl8hEKA==")
@@ -173,36 +175,43 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(String response, int id) {
                         // 请求成功，response就是得到的html文件（网页源代码）
-                        //System.out.println("onResponse" + response);
 
                         if (response.contains("验证码不正确")) {
-                            // 如果源代码包含“验证码不正确”,自动切换验证码
-                            HtmlUtils.codeUrl += '?';
-                            initCode();
-                            Toast.makeText(mContext, "验证码不正确,请重新输入", Toast.LENGTH_SHORT).show();
+                            // 自动切换验证码
+                            initCode(baseInfoBean.getCodeUrl() + "?");
+                            etCode.setError("验证码不正确");
 
                         } else if (response.contains("密码错误")) {
-                            // 如果源代码包含“密码错误”
-                            Toast.makeText(mContext, "密码错误", Toast.LENGTH_SHORT).show();
+                            etStuPasswd.setError("密码不正确");
 
                         } else if (response.contains("用户名不存在")) {
-                            // 如果源代码包含“用户名不存在”
-                            Toast.makeText(mContext, "用户名不存在", Toast.LENGTH_SHORT).show();
+                            etStuId.setError("用户名不正确");
 
                         } else {
-                            //登录成功
-                            Log.d(TAG, response);
-                            Toast.makeText(mContext, "登陆成功", Toast.LENGTH_SHORT).show();
-
-                            // 保存response
-                            HtmlUtils.response = response;
-                            // 保存用户基本信息
-                            saveDataToDB();
+                            // 登录成功 判断是否第一次登录
+                            if (isFirstTime) {
+                                // 保存response
+                                HtmlUtils.response = response;
+                                showSaveDataDialog();
+                            }
                             // 跳转
                             startActivity(new Intent(mContext, MainActivity.class));
                         }
                     }
                 });
+    }
+
+    /**
+     * 显示弹窗 保存数据中
+     */
+    private void showSaveDataDialog() {
+        ProgressDialog waitDialog = new ProgressDialog(mContext);
+        waitDialog.setTitle("请稍后");
+        waitDialog.setMessage("Loading...");
+        waitDialog.setCanceledOnTouchOutside(false);
+        waitDialog.show();
+        saveDataToDB();
+        waitDialog.dismiss();
     }
 
     /**
