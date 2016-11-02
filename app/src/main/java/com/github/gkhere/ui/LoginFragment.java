@@ -7,9 +7,11 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v4.app.Fragment;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -40,7 +42,7 @@ import static com.github.gkhere.bean.BaseInfoBean.BASEINFO_userAgent;
 /**
  * Created by Meiji on 2016/8/10.
  */
-public class LoginActivity extends AppCompatActivity {
+public class LoginFragment extends Fragment {
 
     private CoordinatorLayout layoutRoot;
     private LinearLayout login;
@@ -50,23 +52,30 @@ public class LoginActivity extends AppCompatActivity {
     private EditText etCode;
     private Button btLogin;
 
-    private String TAG = "LoginActivity : ";
-    private Context mContext = this;
+    private Context mContext;
     private String stuId;
     private String stuPasswd;
     private String code;
 
     private BaseInfoBean baseInfoBean = new BaseInfoBean();
     private boolean isFirstTime;
+    private long exitTime;
+
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
-        initView();
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_login, container, false);
+        initView(view);
         initData();
         initCode(baseInfoBean.getCodeUrl());
         initListener();
+        return view;
     }
 
     /**
@@ -125,14 +134,15 @@ public class LoginActivity extends AppCompatActivity {
         initCode(baseInfoBean.getCodeUrl() + "?");
     }
 
-    private void initView() {
-        layoutRoot = (CoordinatorLayout) findViewById(R.id.layoutRoot);
-        login = (LinearLayout) findViewById(R.id.login);
-        etStuId = (EditText) findViewById(R.id.et_stuId);
-        etStuPasswd = (EditText) findViewById(R.id.et_stuPasswd);
-        ivCode = (ImageView) findViewById(R.id.iv_code);
-        etCode = (EditText) findViewById(R.id.et_code);
-        btLogin = (Button) findViewById(R.id.bt_login);
+    private void initView(View view) {
+        layoutRoot = (CoordinatorLayout) view.findViewById(R.id.layoutRoot);
+        login = (LinearLayout) view.findViewById(R.id.login);
+        etStuId = (EditText) view.findViewById(R.id.et_stuId);
+        etStuPasswd = (EditText) view.findViewById(R.id.et_stuPasswd);
+        ivCode = (ImageView) view.findViewById(R.id.iv_code);
+        etCode = (EditText) view.findViewById(R.id.et_code);
+        btLogin = (Button) view.findViewById(R.id.bt_login);
+        mContext = getActivity();
     }
 
     private void requestLogin() {
@@ -141,7 +151,6 @@ public class LoginActivity extends AppCompatActivity {
         stuId = etStuId.getText().toString();
         stuPasswd = etStuPasswd.getText().toString();
         code = etCode.getText().toString();
-
 
         // 这里应该做一些空值判断
         if (TextUtils.isEmpty(stuId) || TextUtils.isEmpty(stuPasswd) || TextUtils.isEmpty(code)) {
@@ -175,18 +184,22 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(String response, int id) {
                         // 请求成功，response就是得到的html文件（网页源代码）
-
+                        View focusView = null;
                         if (response.contains("验证码不正确")) {
-                            // 自动切换验证码
-                            initCode(baseInfoBean.getCodeUrl() + "?");
                             etCode.setError("验证码不正确");
-
+                            focusView = etCode;
                         } else if (response.contains("密码错误")) {
                             etStuPasswd.setError("密码不正确");
-
+                            focusView = etStuPasswd;
                         } else if (response.contains("用户名不存在")) {
                             etStuId.setError("用户名不正确");
-
+                            focusView = etStuId;
+                        }
+                        if (focusView != null) {
+                            // 自动聚焦到输入框
+                            focusView.requestFocus();
+                            // 自动切换验证码
+                            initCode(baseInfoBean.getCodeUrl() + "?");
                         } else {
                             // 登录成功 判断是否第一次登录
                             if (isFirstTime) {
@@ -231,4 +244,5 @@ public class LoginActivity extends AppCompatActivity {
         baseInfoDao.add(BASEINFO_searchScoreUrl, bean.getSearchScoreUrl());
         baseInfoDao.add(BASEINFO_searchCourseUrl, bean.getSearchCourseUrl());
     }
+
 }

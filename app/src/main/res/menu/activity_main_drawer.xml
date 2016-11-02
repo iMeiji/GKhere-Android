@@ -3,8 +3,10 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <group android:checkableBehavior="single">
+        <!--android:checked 默认选中 -->
         <item
             android:id="@+id/main"
+            android:checked="true"
             android:icon="@drawable/ic_menu_slideshow"
             android:title="主页"/>
         <item
@@ -16,9 +18,9 @@
             android:icon="@drawable/ic_menu_gallery"
             android:title="查课表"/>
         <item
-            android:id="@+id/nav_manage"
+            android:id="@+id/search_book"
             android:icon="@drawable/ic_menu_manage"
-            android:title="Tools"/>
+            android:title="图书馆"/>
     </group>
 
     <item android:title="Communicate">
@@ -28,9 +30,9 @@
                 android:icon="@drawable/ic_menu_share"
                 android:title="Share"/>
             <item
-                android:id="@+id/nav_send"
+                android:id="@+id/nav_logout"
                 android:icon="@drawable/ic_menu_send"
-                android:title="Send"/>
+                android:title="注销"/>
         </menu>
     </item>
 

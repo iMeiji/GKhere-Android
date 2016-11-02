@@ -21,7 +21,7 @@ public class BaseInfoDao {
     }
 
     public boolean add(String key, String value) {
-        BaseInfoHelper helper = new BaseInfoHelper(mContext);
+        BaseInfoHelper helper = new BaseInfoHelper(mContext, 1);
         SQLiteDatabase db = helper.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put("key", key);
@@ -31,7 +31,7 @@ public class BaseInfoDao {
     }
 
     public String query(String key) {
-        BaseInfoHelper helper = new BaseInfoHelper(mContext);
+        BaseInfoHelper helper = new BaseInfoHelper(mContext, 1);
         SQLiteDatabase db = helper.getWritableDatabase();
         Cursor cursor = db.query("baseinfo", new String[]{"value"}, "key=?", new String[]{key}, null, null, null);
         String value = null;
@@ -41,6 +41,14 @@ public class BaseInfoDao {
         cursor.close();
         db.close();
         return value;
+    }
+
+    public boolean deleteAll() {
+        BaseInfoHelper helper = new BaseInfoHelper(mContext, 1);
+        SQLiteDatabase db = helper.getWritableDatabase();
+        int delete = db.delete("baseinfo", null, null);
+        db.close();
+        return delete != 0;
     }
 
 

@@ -10,8 +10,8 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class BaseInfoHelper extends SQLiteOpenHelper {
 
-    public BaseInfoHelper(Context context) {
-        super(context, "baseinfo.db", null, 1);
+    public BaseInfoHelper(Context context, int version) {
+        super(context, "baseinfo.db", null, version);
     }
 
     @Override
